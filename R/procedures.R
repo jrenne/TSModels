@@ -1,12 +1,13 @@
 
-simul.X <- function(Phi_x,Mu_x,Sigma_x,nb.periods){
+simul.X <- function(Phi_x,Mu_x,Sigma_x,nb.periods,X0=NaN,nb.replics=1){
   n <- dim(Phi_x)[1]
-  X0 <- solve(diag(n) - Phi_x) %*% Mu_x
-  X <- X0
-  all.X <- c(X0)
-  for(t in 2:nb.periods){
-    X <- Mu_x + Phi_x %*% X + Sigma_x %*% rnorm(n)
-    all.X <- rbind(all.X,t(X))
+  all.X <- array(NaN,c(n,nb.replics,nb.periods))
+  if(is.na(X0[1])){X0 <- solve(diag(n) - Phi_x) %*% Mu_x}
+  X <- matrix(X0,n,nb.replics)
+  for(h in 1:nb.periods){
+    X <- Mu_x %*% matrix(1,1,nb.replics) + Phi_x %*% X +
+      Sigma_x %*% matrix(rnorm(n*nb.replics),n,nb.replics)
+    all.X[,,h] <- X
   }
   return(all.X)
 }
