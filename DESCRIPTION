@@ -4,7 +4,7 @@ Title: Dynamic Stochastic Term Structure Models
 Version: 0.1.0
 Author: Jean-Paul Renne
 Maintainer: Jean-Paul Renne <jean-paul.renne@m4x.org>
-Description: This package provides functions aiming to price fixed-income products in the context of dynamics stochastic models.
+Description: This package provides functions aiming to price fixed-income products in the context of dynamic stochastic models.
 License: GPL-2
 Encoding: UTF-8
 LazyData: true

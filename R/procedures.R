@@ -1,4 +1,95 @@
 
+simul.ARG <- function(nb.sim,mu,nu,rho,alpha=0,w0=NaN){
+  # This function simulates an ARG or an ARG0 process
+
+  unc.mean <- (alpha + nu) * mu/(1-rho)
+
+  if(is.na(w0)){
+    w_0 <- unc.mean
+  }else{
+    w_0 <- w0
+  }
+  W <- w_0
+  w <- w_0
+  for(t in 2:nb.sim){
+    z <- rpois(1,rho*w/mu + alpha)
+    w <- mu * rgamma(1,shape=nu+z)
+    W <- c(W,w)
+  }
+  return(W)
+}
+
+simul.compound.poisson <- function(nb.sim,Gamma,Pi,lambda,w0=NaN){
+  # This function simulates a compound Poisson process
+
+  if(is.na(w0)){
+    w_0 <- 1 * Gamma
+  }else{
+    w_0 <- w0
+  }
+
+  W <- w_0
+  w <- w_0
+  for(t in 2:nb.sim){
+    z <- sum(rbernoulli(n = w/Gamma, p = Pi))
+    eps <- rpois(1,lambda)
+    w <- Gamma * (z + eps)
+    W <- c(W,w)
+  }
+  return(W)
+}
+
+simul.MS.AR <- function(nb.sim,mu.1,mu.2,rho.1,rho.2,sigma.1,sigma.2,P,w0=NaN){
+  # This function simulates a Markov-Switching AR process
+  # s valued in {1,2}
+  # p(1,2) = P( s_{t}=2 | s_{t-1}=1 )
+
+  max.2.power <- 8
+  Pk <- t(P)
+  for(i in 1:max.2.power){
+    Pk <- Pk %*% Pk
+  }
+  if(Pk[1,1]<.5){
+    s <- 2
+  }else{
+    s <- 1
+  }
+
+  S <- s
+
+  if(is.na(w0)){
+    w_0 <- Pk[1,1] * mu.1/(1-rho.1) + Pk[2,1] * mu.2/(1-rho.2)
+  }else{
+    w_0 <- w0
+  }
+
+  W <- w_0
+  w <- w_0
+
+  for(t in 2:nb.sim){
+    u <- runif(1)
+    if(s==1){
+      if(u>P[1,1]){
+        s <- 2
+      }
+    }else{
+      if(u<P[2,1]){
+        s <- 1
+      }
+    }
+    S <- c(S,s)
+
+    if(s==1){
+      w <- mu.1 + rho.1 * w + sigma.1 * rnorm(1)
+    }else{
+      w <- mu.2 + rho.2 * w + sigma.2 * rnorm(1)
+    }
+
+    W <- c(W,w)
+  }
+  return(list(S=S,W=W,Pk=Pk))
+}
+
 simul.X <- function(Phi_x,Mu_x,Sigma_x,nb.periods,X0=NaN,nb.replics=1){
   n <- dim(Phi_x)[1]
   all.X <- array(NaN,c(n,nb.replics,nb.periods))
