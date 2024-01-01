@@ -94,6 +94,10 @@ simul.compound.poisson <- function(nb.sim,Gamma,Pi,lambda,w0=NaN){
   return(W)
 }
 
+rbernoulli <- function(n,p){
+  return(1*(runif(n)<p))
+}
+
 simul.MS.AR <- function(nb.sim,mu.1,mu.2,rho.1,rho.2,sigma.1,sigma.2,P,w0=NaN){
   # This function simulates a Markov-Switching AR process
   # s is valued in {1,2}
