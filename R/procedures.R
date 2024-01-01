@@ -1,4 +1,59 @@
 
+reverse.MHLT <- function(psi,u1,u2,H,psi.parameterization){
+  # compute the multi-horizon Laplace transform in the reverse-order case
+  # That is we consider:
+  # E_t(exp(u_2'w_{t+1}+...+u_2'w_{t+h-1}+u_1'w_{t+h}))
+  # Inputs: psi is the (one-period) conditional Laplace transform of process w_t
+  A = NULL
+  B = NULL
+  A.h_1 <- 0
+  B.h_1 <- 0
+  for(i in 1:H){
+    if(i==1){u <- u1}else{u <- u2}
+    psi.u <- psi(u + A.h_1,psi.parameterization)
+    A.h <- psi.u$a
+    B.h <- psi.u$b + B.h_1
+    # save results
+    A <- cbind(A,A.h)
+    B <- cbind(B,B.h)
+    # for next iteration
+    A.h_1 <- A.h
+    B.h_1 <- B.h
+  }
+  return(list(A=A,
+              B=B))
+}
+
+psi.GaussianVAR <- function(u,psi.parameterization){
+  # Laplace transform of a Gaussian VAR:
+  # w_t = mu + Phi w_{t-1} + epsilon_{t}, where epsilon_{t}~N(0,Sigma)
+  # If w_t is n-dimensional, u is of dimension n x k
+  #    (i.e., we can compute k LT in parallel)
+  mu    <- psi.parameterization$mu
+  Phi   <- psi.parameterization$Phi
+  Sigma <- psi.parameterization$Sigma
+  a <- t(Phi) %*% u
+  b <- t(u) %*% mu + .5 * t(apply(u,2,function(x){x %x% x})) %*% c(Sigma)
+  return(list(a=a,b=b))
+}
+# # Check:
+# mu <- matrix(1:3,ncol=1)
+# Phi <- .9 * diag(3)
+# Sigma <- diag(3)
+# Sigma[1,3] <- .5
+# Sigma[3,1] <- .5
+# psi.parameterization <- list(
+#   mu = mu,
+#   Phi = Phi,
+#   Sigma = Sigma
+# )
+# u <- matrix(1:12,nrow=3)
+# psi.GaussianVAR(u,psi.parameterization)
+# # Check reverse-order multi-horizon LT:
+# u1 <- matrix(1,3,1)
+# u2 <- u1/2
+# reverse.MHLT(psi.GaussianVAR,u1,u2,H,psi.parameterization)
+
 simul.ARG <- function(nb.sim,mu,nu,rho,alpha=0,w0=NaN){
   # This function simulates an ARG or an ARG0 process
 
@@ -41,7 +96,7 @@ simul.compound.poisson <- function(nb.sim,Gamma,Pi,lambda,w0=NaN){
 
 simul.MS.AR <- function(nb.sim,mu.1,mu.2,rho.1,rho.2,sigma.1,sigma.2,P,w0=NaN){
   # This function simulates a Markov-Switching AR process
-  # s valued in {1,2}
+  # s is valued in {1,2}
   # p(1,2) = P( s_{t}=2 | s_{t-1}=1 )
 
   max.2.power <- 8
@@ -103,8 +158,8 @@ simul.X <- function(Phi_x,Mu_x,Sigma_x,nb.periods,X0=NaN,nb.replics=1){
   return(all.X)
 }
 
-
 make.Gamma <- function(Psi){
+  # This function is used in the context of shadow-intensity models
   # Psi is of dimension (H+1)x(H+1) (see paper)
   # The sum of the entries (j+1,1),(j+2,2),...,(n,n-j) of Psi is Gamma_{n,j}
   # This function computes the matrix Mat.Gamma whose component (i,j) is Gamma_{j,i-1}
@@ -125,6 +180,7 @@ make.Gamma <- function(Psi){
 }
 
 make.indices <- function(M){
+  # This function is used in the context of shadow-intensity models
   n.m <- dim(M)[1]
   mat.indices <- matrix(NaN, (n.m-1), (n.m-1))
   for (i in 1:(n.m-1)){
@@ -139,7 +195,8 @@ compute.condit.Exp <- function(a,b,
                                Phi_x,Mu_x,Sigma_x,
                                X,max.h,
                                u = 0){
-  # This function computes two types of conditional expectations:
+  # This function is used in the context of shadow-intensity models
+  # It computes two types of conditional expectations:
   #
   # E.n :
   # E_t(exp(b.dot + a.dot*X_{t+1} + ... + b.dot + a.dot*X_{t+h} +
