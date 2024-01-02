@@ -26,6 +26,7 @@ reverse.MHLT <- function(psi,u1,u2,H,psi.parameterization){
   }
   matrix1overH <- -1/array((1:H) %x% rep(1,n*k),c(n,k,H))
   a <- A*matrix1overH
+  matrix1overH <- -1/array((1:H) %x% rep(1,1*k),c(1,k,H))
   b <- B*matrix1overH
   return(list(A=A,B=B,a=a,b=b))
 }
