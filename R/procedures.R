@@ -24,8 +24,10 @@ reverse.MHLT <- function(psi,u1,u2,H,psi.parameterization){
     A.h_1 <- A.h
     B.h_1 <- B.h
   }
-  return(list(A=A,
-              B=B))
+  matrix1overH <- -1/array((1:H) %x% rep(1,n*k),c(n,k,H))
+  a <- A*matrix1overH
+  b <- B*matrix1overH
+  return(list(A=A,B=B,a=a,b=b))
 }
 
 psi.GaussianVAR <- function(u,psi.parameterization){
