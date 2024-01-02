@@ -8,14 +8,18 @@ reverse.MHLT <- function(psi,u1,u2,H,psi.parameterization){
   B = NULL
   A.h_1 <- 0
   B.h_1 <- 0
+  n <- dim(u1)[1]
+  k <- dim(u1)[2]
+  A <- array(NaN,c(n,k,H))
+  B <- array(NaN,c(1,k,H))
   for(i in 1:H){
     if(i==1){u <- u1}else{u <- u2}
     psi.u <- psi(u + A.h_1,psi.parameterization)
     A.h <- psi.u$a
     B.h <- psi.u$b + B.h_1
     # save results
-    A <- cbind(A,A.h)
-    B <- cbind(B,B.h)
+    A[,,i] <- A.h
+    B[,,i] <- B.h
     # for next iteration
     A.h_1 <- A.h
     B.h_1 <- B.h
@@ -50,9 +54,12 @@ psi.GaussianVAR <- function(u,psi.parameterization){
 # u <- matrix(1:12,nrow=3)
 # psi.GaussianVAR(u,psi.parameterization)
 # # Check reverse-order multi-horizon LT:
-# u1 <- matrix(1,3,1)
+# u1 <- matrix(1,3,2)
 # u2 <- u1/2
 # reverse.MHLT(psi.GaussianVAR,u1,u2,H,psi.parameterization)
+
+
+
 
 simul.ARG <- function(nb.sim,mu,nu,rho,alpha=0,w0=NaN){
   # This function simulates an ARG or an ARG0 process
