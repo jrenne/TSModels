@@ -96,7 +96,7 @@ Kalman_filter <- function(Y_t,nu_t,H,N,mu_t,G,M,Sigma_0,rho_0,indic_pos=0,
       if(sum(eigen(R.aux + G.aux %*% aux_Sigma_tp1_t %*% t(G.aux))$values<=0)>0){
         print("ici")
       }
-      K = aux_Sigma_tp1_t %*% t(G.aux) %*% ginv(R.aux + G.aux %*% aux_Sigma_tp1_t %*% t(G.aux))
+      K = aux_Sigma_tp1_t %*% t(G.aux) %*% MASS::ginv(R.aux + G.aux %*% aux_Sigma_tp1_t %*% t(G.aux))
 
 
       lambda_t   = Y_t[t,] - y_tp1_t[t,]
@@ -117,7 +117,7 @@ Kalman_filter <- function(Y_t,nu_t,H,N,mu_t,G,M,Sigma_0,rho_0,indic_pos=0,
       }
       loglik.vector <- rbind(loglik.vector,
                              ny.aux/2*log(2*pi) - 1/2*(log(det.omega) +
-                                                         t(lambda_t) %*% ginv(omega) %*% lambda_t)
+                                                         t(lambda_t) %*% MASS::ginv(omega) %*% lambda_t)
       )
       logl <- logl + loglik.vector[t]
 
