@@ -59,6 +59,10 @@ compute.price.WX <- function(Model,X,max.H){
   aux <- vec.1 %*% matrix(all.a,nrow=1) +  X %*% t(all.b) - Model$r.bar
   aux <- aux / (vec.1 %*% matrix(all.sigma,nrow=1))
 
+  ggg <- function(z){
+    return(z * pnorm(z) + dnorm(z))
+  }
+
   vec.f <- Model$r.bar + (vec.1 %*% matrix(all.sigma,nrow=1)) * ggg(aux)
 
   vec.y <- t(apply(vec.f,1,cumsum))
@@ -75,8 +79,5 @@ compute.price.WX <- function(Model,X,max.H){
   ))
 }
 
-ggg <- function(z){
-  return(z * pnorm(z) + dnorm(z))
-}
 
 

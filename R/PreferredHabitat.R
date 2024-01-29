@@ -35,7 +35,7 @@ compute_lambdas <- function(AB,model){
               beta1  = beta1))
 }
 
-compute_AB <- function(model,lambdas){
+compute_AB_VV <- function(model,lambdas){
   lambda <- lambdas$lambda
   Lambda <- lambdas$Lambda
 
@@ -83,7 +83,7 @@ solve_model <- function(model,
                     Lambda = matrix(0,m,m))
   }
   for(i in 1:nb.iter){
-    AB <- compute_AB(model,lambdas)
+    AB <- compute_AB_VV(model,lambdas)
     lambdas <- compute_lambdas(AB,model)
     if(indic.print){
       print(lambdas$lambda)
