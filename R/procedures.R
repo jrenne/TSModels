@@ -4,6 +4,8 @@ reverse.MHLT <- function(psi,u1,u2,H,psi.parameterization){
   # That is we consider:
   # E_t(exp(u_2'w_{t+1}+...+u_2'w_{t+h-1}+u_1'w_{t+h}))
   # Inputs: psi is the (one-period) conditional Laplace transform of process w_t
+  # The function can evaliuate the MHLT in parallel for k different vectors
+  #    u1 and u2 (i.e., u1 and u2, as inputs can be of dimension n x k with k > 1)
   A = NULL
   B = NULL
   A.h_1 <- 0
@@ -36,6 +38,7 @@ psi.GaussianVAR <- function(u,psi.parameterization){
   # w_t = mu + Phi w_{t-1} + epsilon_{t}, where epsilon_{t}~N(0,Sigma)
   # If w_t is n-dimensional, u is of dimension n x k
   #    (i.e., we can compute k LT in parallel)
+  # WARNING: Sigma is a covariance matrix.
   mu    <- psi.parameterization$mu
   Phi   <- psi.parameterization$Phi
   Sigma <- psi.parameterization$Sigma
