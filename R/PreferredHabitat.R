@@ -29,10 +29,20 @@ compute_lambdas <- function(AB,model){
   alpha1 <- 1 - sum(caligA[2:N]) - Zeta[1]*a1
   beta1  <- - apply(caligB[2:N,],2,sum) - Zeta[1]*b1
 
+  # Update caligA and caligB:
+  Alpha[1] <- alpha1
+  Beta[1,] <- beta1
+  caligA <- Alpha + Zeta/(1:N) * A
+  caligB <- Beta + ((Zeta/(1:N)) %*% matrix(1,1,m)) * B
+
   return(list(lambda = lambda,
               Lambda = Lambda,
               alpha1 = alpha1,
-              beta1  = beta1))
+              beta1  = beta1,
+              Alpha  = Alpha,
+              Beta   = Beta,
+              caligA = caligA,
+              caligB = caligB))
 }
 
 compute_AB_VV <- function(model,lambdas){
@@ -45,6 +55,8 @@ compute_AB_VV <- function(model,lambdas){
   Sigma = model$Sigma
   a1    = model$a1
   b1    = model$b1
+
+  m <- dim(Phi)[2]
 
   Phi_Q  <- Phi  - Sigma %*% Lambda
   mu_f_Q <- mu_f - Sigma %*% lambda
@@ -66,7 +78,11 @@ compute_AB_VV <- function(model,lambdas){
     A[n]  <- a_n
     B[n,] <- b_n
   }
-  return(list(A=A,B=B))
+
+  a <- - A/1:N
+  b <- - B/matrix(1:N,N,m)
+
+  return(list(A=A,B=B,a=a,b=b))
 }
 
 
